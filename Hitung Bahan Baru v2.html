@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitung Bahan Super</title>
+    
+    <script src="xlsx.full.min.js"></script>
+    <script src="exceljs.min.js"></script>
+    <script src="FileSaver.min.js"></script>
+	
+    <style>
+        :root {
+            --bg-main: #06111b;
+            --bg-sidebar: rgba(3, 13, 22, 0.85);
+            --bg-card: #091827;
+            --bg-input: #061421;
+            --border-color: #173b56;
+            --border-focus: #20e89b;
+            
+            --accent-green: #20e89b;
+            --accent-green-glow: rgba(32, 232, 155, 0.25);
+            --accent-blue: #20cfff;
+            --accent-blue-glow: rgba(32, 207, 255, 0.25);
+            --accent-purple: #a855f7;
+            --accent-orange: #ffc62f;
+            --accent-red: #ff5f73;
+
+            --text-main: #eef7ff;
+            --text-muted: #7f9bb0;
+            --text-dim: #94a3b8;
+            --table-header-bg: #10283b;
+            --table-border: #122e43;
+            --overlay-bg: rgba(4, 12, 20, 0.85);
+            --shadow: 0 18px 45px rgba(0,0,0,0.35);
+        }
+
+        /* LIGHT MODE */
+        [data-theme="Light Mode"] {
+            --bg-main: #f1f5f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --border-color: #cbd5e1;
+            --border-focus: #059669;
+            
+            --accent-green: #059669;
+            --accent-green-glow: rgba(5, 150, 105, 0.15);
+            --accent-blue: #0284c7;
+            --accent-blue-glow: rgba(2, 132, 199, 0.15);
+            --accent-purple: #7c3aed;
+            --accent-orange: #d97706;
+            --accent-red: #dc2626;
+
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-dim: #475569;
+            --table-header-bg: #e2e8f0;
+            --table-border: #cbd5e1;
+            --overlay-bg: rgba(255, 255, 255, 0.85);
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        /* DARK GOLD */
+        [data-theme="Dark Gold"] {
+            --bg-main: #141008;
+            --bg-sidebar: rgba(20, 16, 8, 0.9);
+            --bg-card: #1f1a0e;
+            --bg-input: #120e07;
+            --border-color: #3d321b;
+            --border-focus: #ffd447;
+            
+            --accent-green: #ffd447;
+            --accent-green-glow: rgba(255, 212, 71, 0.25);
+            --accent-blue: #ffb52e;
+            --accent-blue-glow: rgba(255, 181, 46, 0.25);
+            --accent-purple: #f59e0b;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+
+            --text-main: #fffbeb;
+            --text-muted: #a39373;
+            --text-dim: #d4c5a9;
+            --table-header-bg: #292213;
+            --table-border: #2e2616;
+            --overlay-bg: rgba(20, 16, 8, 0.85);
+        }
+
+        /* MIDNIGHT BLUE */
+        [data-theme="Midnight Blue"] {
+            --bg-main: #0b1329;
+            --bg-sidebar: rgba(11, 19, 41, 0.9);
+            --bg-card: #111c3d;
+            --bg-input: #090e21;
+            --border-color: #1e2d5a;
+            --border-focus: #63e6ff;
+            
+            --accent-green: #63e6ff;
+            --accent-green-glow: rgba(99, 230, 255, 0.25);
+            --accent-blue: #3b82f6;
+            --accent-blue-glow: rgba(59, 130, 246, 0.25);
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+
+            --text-main: #f0f6ff;
+            --text-muted: #7388b6;
+            --text-dim: #a0b2dc;
+            --table-header-bg: #182650;
+            --table-border: #18254c;
+            --overlay-bg: rgba(11, 19, 41, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-layout {
+    	    display: grid;
+    	    grid-template-columns: 1fr 340px; 
+   	    min-height: 100vh;
+	}
+
+        .logo-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #d8f29a, var(--accent-green));
+            color: #062016;
+            font-size: 24px;
+            font-weight: 900;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 0 20px var(--accent-green-glow);
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .brand-title b {
+            color: var(--accent-green);
+        }
+
+        .brand-tag {
+            font-size: 8px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+            font-weight: 700;
+        }
+
+        .main-workspace {
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0;
+            background: radial-gradient(circle at 15% 15%, rgba(32,232,155,0.04), transparent 25%),
+                        radial-gradient(circle at 85% 20%, rgba(32,207,255,0.03), transparent 25%);
+        }
+
+        /* TOPBAR */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 48px;
+            margin-bottom: 4px;
+        }
+
+        .page-title h1 {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .page-title p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* CARDS GENERAL */
+        .card {
+            background: linear-gradient(145deg, var(--bg-card), rgba(7, 20, 32, 0.85));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 16px 18px;
+        }
+
+        /* ACTION BAR */
+        .action-row {
+            display: grid;
+            grid-template-columns: 1.2fr 1.1fr 0.8fr 1.1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            height: 50px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-1.5px);
+            border-color: var(--border-focus);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-green), #19cfa4);
+            color: #032017;
+            border: none;
+            box-shadow: 0 6px 20px var(--accent-green-glow);
+        }
+
+        .btn-stop { color: var(--accent-red); }
+        .btn-export { color: var(--accent-blue); }
+
+        /* TARGET SECTION */
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title .ico {
+            color: var(--accent-blue);
+            font-size: 16px;
+        }
+
+        .section-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .targets-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .field {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .field label {
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 800;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .field input, .field select {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--accent-green);
+            font-size: 15px;
+            font-weight: 800;
+            text-align: center;
+            outline: none;
+        }
+
+        .field select {
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* STATUS BANNER WITH PROGRESS */
+        .status-banner {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-color: rgba(32,232,155,0.35);
+            background: linear-gradient(90deg, rgba(8,49,45,0.6), var(--bg-card));
+            overflow: hidden;
+            padding: 14px 18px;
+        }
+
+        .status-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-green);
+            display: grid;
+            place-items: center;
+            color: var(--accent-green);
+            font-size: 18px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .status-text label {
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .status-text strong {
+            display: block;
+            font-size: 15px;
+            color: var(--text-main);
+        }
+
+        .progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            transition: width 0.1s linear;
+        }
+
+        /* PREVIEW TABLE CARD */
+        .table-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 280px;
+        }
+
+        .table-wrap {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 8px;
+            max-height: 380px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: var(--table-header-bg);
+            color: var(--text-dim);
+            padding: 10px 12px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 2;
+        }
+
+        .table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--table-border);
+            color: var(--text-main);
+        }
+
+        tr.group-row td {
+            background-color: rgba(32, 207, 255, 0.08);
+            color: var(--accent-blue);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .empty-row {
+            text-align: center;
+            padding: 50px 20px !important;
+            color: var(--text-muted) !important;
+        }
+		
+		/* ANIMASI STATE KOSONG */
+		@keyframes float {
+			0% { transform: translateY(0px); }
+			50% { transform: translateY(-10px); }
+			100% { transform: translateY(0px); }
+		}
+
+		@keyframes pulse-glow {
+			0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 5px var(--accent-blue)); }
+			50% { opacity: 1; filter: drop-shadow(0 0 15px var(--accent-blue)); }
+		}
+
+		.empty-state-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			padding: 20px 0;
+		}
+
+		.empty-icon {
+			font-size: 42px;
+			color: var(--accent-blue);
+			animation: float 3s ease-in-out infinite, pulse-glow 2.5s ease-in-out infinite;
+		}
+
+		.empty-title {
+			font-size: 14px;
+			font-weight: 800;
+			color: var(--text-main);
+			letter-spacing: 0.5px;
+		}
+
+		.empty-desc {
+			font-size: 11px;
+			color: var(--text-muted);
+		}
+
+        /* RESULTS SIDEBAR (RIGHT PANEL) */
+        .results-panel {
+            border-left: 1px solid var(--border-color);
+            padding: 20px 18px;
+            background: rgba(3, 12, 20, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .results-head {
+            font-size: 16px;
+            font-weight: 850;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .results-head span {
+            color: var(--accent-green);
+        }
+
+        .result-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            background: linear-gradient(145deg, var(--bg-card), rgba(7, 22, 32, 0.9));
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .result-card.c1 { border-color: rgba(32, 232, 155, 0.4); }
+        .result-card.c2 { border-color: rgba(32, 207, 255, 0.4); }
+        .result-card.c3 { border-color: rgba(168, 85, 247, 0.4); }
+        .result-card.gold { border-color: rgba(255, 198, 47, 0.4); background: linear-gradient(145deg, rgba(45,37,10,0.3), var(--bg-card)); }
+
+        .result-card:after {
+            content: "";
+            position: absolute;
+            right: -25px;
+            bottom: -30px;
+            width: 140px;
+            height: 70px;
+            border-top: 2px solid rgba(32,232,155,0.12);
+            border-radius: 50%;
+            transform: rotate(-15deg);
+            pointer-events: none;
+        }
+
+        .badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 11px;
+        }
+
+        .badge.c1 { background: var(--accent-green); color: #042017; }
+        .badge.c2 { background: var(--accent-blue); color: #042332; }
+        .badge.c3 { background: var(--accent-purple); color: #ffffff; }
+        .badge.gold { background: var(--accent-orange); color: #3d2b00; }
+
+        .item-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .metric label {
+            font-size: 10px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .metric strong {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .green-txt { color: var(--accent-green); }
+        .cyan-txt { color: var(--accent-blue); }
+        .purple-txt { color: var(--accent-purple); }
+        .gold-txt { color: var(--accent-orange); }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 2px 0;
+        }
+
+        /* OVERLAY LOADING & TOAST NOTIFICATION */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .overlay-card {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-green);
+            box-shadow: 0 0 25px var(--accent-green-glow);
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+            width: 280px;
+        }
+
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-green);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 12px 18px;
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.25s;
+            z-index: 1000;
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        #file-input-hidden { display: none; }
+
+        @media (max-width: 1100px) {
+    	   .app-layout { grid-template-columns: 1fr; }
+    	   .results-panel { grid-column: 1; border-left: 0; border-top: 1px solid var(--border-color); }
+   	   .targets-grid { grid-template-columns: repeat(4, 1fr); }
+	}
+
+        @media (max-width: 720px) {
+            .app-layout { display: block; }
+            .sidebar { display: none; }
+            .main-workspace, .results-panel { padding: 14px; }
+            .action-row { grid-template-columns: 1fr 1fr; }
+            .targets-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body data-theme="Midnight Blue">
+
+<div class="app-layout">
+
+    <!-- MAIN WORKSPACE -->
+    <main class="main-workspace">
+        <div class="topbar">
+            <div class="page-title">
+                <h1>Hitung Bahan <span style="color:var(--accent-green)">Super</span></h1>
+                <p>By Shadow Corp.</p>
+            </div>
+            <div class="top-actions">
+                <select class="theme-select" id="theme-switcher" onchange="switchTheme(this.value)">
+		   <option value="Dark Neon">Dark Neon</option>
+ 		   <option value="Light Mode">Light Mode</option>
+		   <option value="Dark Gold">Dark Gold</option>
+		   <option value="Midnight Blue" selected>Midnight Blue</option>
+		</select>
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS CARD -->
+        <section class="card">
+            <div class="action-row">
+                <button class="btn btn-primary" onclick="triggerExcelPick()">▣ &nbsp; PILIH EXCEL</button>
+                <button class="btn" onclick="startOptimizationProcess()">✎ &nbsp; MULAI HITUNG &nbsp; ›</button>
+                <button class="btn btn-stop" onclick="stopOptimizationProcess()">⊘ &nbsp; STOP</button>
+                <button class="btn btn-export" onclick="exportExcelReport()">⇧ &nbsp; EXPORT EXCEL</button>
+            </div>
+            <input type="file" id="file-input-hidden" accept=".xlsx,.xls,.csv" onchange="handleExcelFileUpload(event)">
+        </section>
+
+        <!-- TARGET PARAMETERS CARD -->
+        <section class="card">
+            <div class="section-head">
+                <div class="section-title"><span class="ico">◎</span> TARGET BAHAN</div>
+                <div class="section-sub">Parameter target bahan</div>
+            </div>
+            <div class="targets-grid">
+                <div class="field">
+                    <label>Nama Proses</label>
+                    <input type="text" id="target-process" value="" onkeyup="updateLiveProcessTitles()">
+                </div>
+                <div class="field">
+                    <label>Min Berat</label>
+                    <input type="number" id="target-min-weight" value="65000">
+                </div>
+                <div class="field">
+                    <label>Max Berat</label>
+                    <input type="number" id="target-max-weight" value="65300">
+                </div>
+                <div class="field">
+                    <label>Min Kadar</label>
+                    <input type="number" id="target-min-grade" value="60">
+                </div>
+                <div class="field">
+                    <label>Max Kadar</label>
+                    <input type="number" id="target-max-grade" value="80">
+                </div>
+                <div class="field">
+                    <label>Target Kadar</label>
+                    <input type="number" id="target-grade" value="72">
+                </div>
+                <div class="field">
+                    <label>Bagi Proses</label>
+                    <select id="target-split" onchange="updateLiveProcessTitles()">
+                        <option value="1">Bagi 1</option>
+                        <option value="2" selected>Bagi 2</option>
+                        <option value="3">Bagi 3</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATUS BANNER -->
+        <section class="card status-banner">
+            <div class="status-icon">✓</div>
+            <div class="status-text">
+                <label>STATUS DATA</label>
+                <strong id="status-label-text">Silahkan Import Excel Dulu</strong>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="main-progress-bar"></div>
+            </div>
+        </section>
+
+        <!-- PREVIEW DATA TABLE -->
+        <section class="card table-card">
+            <div class="section-head">
+                <div class="section-title"><span class="ico">▤</span> PREVIEW HASIL</div>
+                <div class="section-sub" id="data-row-count">0 DATA</div>
+            </div>
+            <div class="table-wrap">
+                <table class="table" id="preview-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>No Dokumen</th>
+                            <th>Berat 22k</th>
+                            <th>Kadar</th>
+                            <th>Berat AG</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-tbody">
+						<tr>
+							<td colspan="5" class="empty-row">
+								<div class="empty-state-container">
+									<div class="empty-icon">▤</div>
+									<div class="empty-title">Belum ada data masuk</div>
+									<div class="empty-desc">Silakan pilih file Excel dan lakukan perhitungan.</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- RIGHT SUMMARY RESULTS PANEL -->
+    <aside class="results-panel">
+        <div class="results-head">▥ &nbsp; Hasil Hitung <span>Bozz</span> 😎</div>
+        
+        <!-- C1 RESULT CARD -->
+        <div class="result-card c1" id="card-c1">
+            <div class="badge-row">
+                <span class="badge c1" id="badge-title-c1">1</span>
+                <span class="item-count" id="count-c1">0 data</span>
+            </div>
+            <div class="metric-grid">
+                <div class="metric"><label>Total Berat</label><strong id="weight-c1">0.00</strong></div>
+                <div class="metric"><label>Kadar</label><strong class="green-txt" id="grade-c1">0.00%</strong></div>
+            </div>
+        </div>
+
+        <!-- C2 RESULT CARD -->
+        <div class="result-card c2" id="card-c2">
+            <div class="badge-row">
+                <span class="badge c2" id="badge-title-c2">2</span>
+                <span class="item-count" id="count-c2">0 data</span>
+            </div>
+            <div class="metric-grid">
+                <div class="metric"><label>Total Berat</label><strong id="weight-c2">0.00</strong></div>
+                <div class="metric"><label>Kadar</label><strong class="cyan-txt" id="grade-c2">0.00%</strong></div>
+            </div>
+        </div>
+
+        <!-- C3 RESULT CARD -->
+        <div class="result-card c3" id="card-c3" style="display: none;">
+            <div class="badge-row">
+                <span class="badge c3" id="badge-title-c3">3</span>
+                <span class="item-count" id="count-c3">0 data</span>
+            </div>
+            <div class="metric-grid">
+                <div class="metric"><label>Total Berat</label><strong id="weight-c3">0.00</strong></div>
+                <div class="metric"><label>Kadar</label><strong class="purple-txt" id="grade-c3">0.00%</strong></div>
+            </div>
+        </div>
+
+        <!-- GRAND TOTAL CARD -->
+        <div class="result-card gold">
+            <div class="badge-row">
+                <span class="badge gold">Σ &nbsp; GRAND TOTAL</span>
+            </div>
+            <div class="metric"><label>Total Berat Hasil Hitung</label><strong class="gold-txt" id="grand-weight">0.00</strong></div>
+            <div class="metric"><label>Kadar Total</label><strong class="gold-txt" id="grand-grade">0.00%</strong></div>
+            <div class="divider"></div>
+            <div class="metric-grid">
+                <div class="metric"><label>Data Awal</label><strong id="initial-weight">0.00</strong></div>
+                <div class="metric"><label>Kadar Awal</label><strong id="initial-grade">0.00%</strong></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- OVERLAY SPINNER & TOAST -->
+<div class="overlay" id="loading-overlay">
+    <div class="overlay-card">
+        <div class="spinner"></div>
+        <h4 style="font-size: 14px; margin-bottom: 4px;">Sedang Menghitung</h4>
+        <p style="color: var(--text-muted); font-size: 11px;">Mencari kombinasi terbaik...</p>
+    </div>
+</div>
+<div class="toast" id="toast-message"></div>
+
+<script>
+let rawExcelData = [];
+let chosenItems = [];
+let leftoverItems = [];
+let resultGroups = [];
+let isCalculating = false;
+
+const $ = id => document.getElementById(id);
+
+function showToast(msg) {
+    const t = $('toast-message');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function updateStatusLabel(txt) {
+    $('status-label-text').textContent = txt;
+}
+
+function switchTheme(themeName) {
+    document.body.setAttribute('data-theme', themeName);
+    showToast(`Tema diganti ke ${themeName}`);
+}
+
+function formatNumber(num) {
+    return Number(num || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function roundToTwo(num) {
+    return Number(Math.round(num + 'e2') + 'e-2');
+}
+
+function weightedGrade(items) {
+    let totalWeight = 0;
+    let totalProduct = 0;
+    items.forEach(item => {
+        let b = item['Berat 22k'] || 0;
+        let k = item['Kadar'] || 0;
+        totalWeight += b;
+        totalProduct += (b * k);
+    });
+    return totalWeight > 0 ? (totalProduct / totalWeight) : 0;
+}
+
+function updateLiveProcessTitles() {
+    let baseName = $('target-process').value.trim() || 'C';
+    let numSplit = parseInt($('target-split').value) || 2;
+
+    $('badge-title-c1').textContent = `${baseName.toUpperCase()}1`;
+    $('badge-title-c2').textContent = `${baseName.toUpperCase()}2`;
+    $('badge-title-c3').textContent = `${baseName.toUpperCase()}3`;
+
+    if (numSplit === 1) {
+        $('card-c2').style.display = 'none';
+        $('card-c3').style.display = 'none';
+    } else if (numSplit === 2) {
+        $('card-c2').style.display = 'flex';
+        $('card-c3').style.display = 'none';
+    } else {
+        $('card-c2').style.display = 'flex';
+        $('card-c3').style.display = 'flex';
+    }
+}
+
+function triggerExcelPick() {
+    $('file-input-hidden').click();
+}
+
+function handleExcelFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet, { defval: 0 });
+
+            rawExcelData = json.map(row => {
+    const keys = Object.keys(row);
+    
+    const findVal = (patterns) => {
+        const matchedKey = keys.find(k => patterns.some(p => k.toLowerCase().replace(/\s/g, '').includes(p)));
+        return matchedKey !== undefined ? row[matchedKey] : undefined;
+    };
+
+    const rawWeight = findVal(['berat22k', 'berat22', 'weight', 'berat']);
+    const weight = rawWeight !== undefined ? (parseFloat(rawWeight) || 0) : 0;
+    
+    const rawGrade = findVal(['kadar', 'grade', 'karat']);
+    const grade = rawGrade !== undefined ? (parseFloat(rawGrade) || 0) : 0;
+    
+    const rawAg = findVal(['ag', 'beratag', 'agweight', 'emasag', 'kadarag', 'persenag', 'ag%']);
+    
+    let ag = 0;
+    
+    if (rawAg !== undefined) {
+        let pct = parseFloat(rawAg) || 0;
+        ag = (weight * pct) / 100;
+    } else {
+        ag = (weight * grade) / 100;
+    }
+    
+    const rawDoc = findVal(['nodokumen', 'dokumen', 'no']);
+    const doc = rawDoc !== undefined ? rawDoc : '—';
+
+    return {
+        'No Dokumen': doc,
+        'Berat 22k': weight,
+        'Kadar': grade,
+        'Berat AG': ag
+    };
+}).filter(x => x['Berat 22k'] > 0);
+
+            $('data-row-count').textContent = `${rawExcelData.length} DATA`;
+            updateStatusLabel(`Data Siap — ${rawExcelData.length} baris dimuat`);
+            showToast(`Berhasil membaca ${rawExcelData.length} data Excel`);
+            
+            renderInitialPreview();
+        } catch(err) {
+            showToast("Gagal membaca file Excel!");
+            updateStatusLabel("Format File Tidak Valid");
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function renderInitialPreview() {
+    const tbody = $('preview-tbody');
+    tbody.innerHTML = '';
+
+    if (!rawExcelData.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-row">
+                    <div class="empty-state-container">
+                        <div class="empty-icon">▤</div>
+                        <div class="empty-title">Belum ada data masuk</div>
+                        <div class="empty-desc">Silakan pilih file Excel dan lakukan perhitungan.</div>
+                    </div>
+                </td>
+            </tr>`;
+        return;
+    }
+
+    let initialWeightSum = rawExcelData.reduce((sum, x) => sum + x['Berat 22k'], 0);
+    let initialGradeAvg = weightedGrade(rawExcelData);
+
+    $('initial-weight').textContent = formatNumber(initialWeightSum);
+    $('initial-grade').textContent = formatNumber(initialGradeAvg) + '%';
+
+    rawExcelData.slice(0, 100).forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="color:var(--accent-green); font-weight:700;">READY</td>
+            <td>${row['No Dokumen']}</td>
+            <td>${formatNumber(row['Berat 22k'])}</td>
+            <td>${formatNumber(row['Kadar'])}%</td>
+            <td>${formatNumber(row['Berat AG'])}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function startOptimizationProcess() {
+    if (!rawExcelData.length) {
+        showToast("Silakan pilih file Excel terlebih dahulu!");
+        return;
+    }
+
+    isCalculating = true;
+    $('loading-overlay').style.display = 'flex';
+    updateStatusLabel("Sedang Menghitung... ");
+    $('main-progress-bar').style.width = '0%';
+
+    setTimeout(runCombinatorialOptimization, 120);
+}
+
+function stopOptimizationProcess() {
+    isCalculating = false;
+    $('loading-overlay').style.display = 'none';
+    updateStatusLabel("Proses Dibatalkan Bozz ✋");
+    showToast("Perhitungan dihentikan");
+}
+
+function runCombinatorialOptimization() {
+    const minB = parseFloat($('target-min-weight').value) || 0;
+    const maxB = parseFloat($('target-max-weight').value) || Infinity;
+    const minK = parseFloat($('target-min-grade').value) || 0;
+    const maxK = parseFloat($('target-max-grade').value) || 100;
+    const targetK = parseFloat($('target-grade').value) || 0;
+    const numSplit = parseInt($('target-split').value) || 2;
+
+    let df = rawExcelData.filter(item => item['Berat 22k'] > 0 && item['Kadar'] > 0);
+    let sortedDf = [...df].sort((a,b) => 
+        String(a['No Dokumen']).localeCompare(String(b['No Dokumen']), undefined, { numeric: true, sensitivity: 'base' })
+    );
+
+    let bestCandidate = null;
+    let bestScore = Infinity;
+
+    const totalLoops = 36000;
+    let loopCounter = 0;
+
+    function processBatch() {
+        if (!isCalculating) return;
+
+        let batchSize = 1800;
+        let batchLimit = Math.min(loopCounter + batchSize, totalLoops);
+
+        for (; loopCounter < batchLimit; loopCounter++) {
+            let pick = [];
+            let totalWeight = 0;
+            let isSequential = loopCounter < 28000;
+
+            if (isSequential) {
+                let startIdx = Math.floor(Math.random() * sortedDf.length);
+                let skipChance = Math.random() * 0.25;
+
+                for (let i = 0; i < sortedDf.length; i++) {
+                    let idx = (startIdx + i) % sortedDf.length;
+                    if (Math.random() < skipChance) continue;
+
+                    let item = sortedDf[idx];
+                    let b = item['Berat 22k'];
+
+                    if (totalWeight + b <= maxB) {
+                        pick.push(item);
+                        totalWeight += b;
+                    }
+
+                    if (totalWeight >= minB && totalWeight <= maxB) break;
+                }
+            } else {
+                let currentDf = [...sortedDf];
+                for (let i = currentDf.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [currentDf[i], currentDf[j]] = [currentDf[j], currentDf[i]];
+                }
+
+                for (let item of currentDf) {
+                    let b = item['Berat 22k'];
+                    if (totalWeight + b <= maxB) {
+                        pick.push(item);
+                        totalWeight += b;
+                    }
+                    if (totalWeight >= minB && totalWeight <= maxB) break;
+                }
+            }
+
+            if (totalWeight >= minB && totalWeight <= maxB) {
+                let kTemp = weightedGrade(pick);
+                if (kTemp >= minK && kTemp <= maxK) {
+                    let kadarDiff = Math.abs(targetK - kTemp);
+                    let weightDiff = Math.abs(((minB + maxB) / 2) - totalWeight) / 1000;
+                    let penalty = isSequential ? 0 : 50;
+
+                    let score = (kadarDiff * 100) + weightDiff + penalty;
+                    if (score < bestScore) {
+                        bestScore = score;
+                        bestCandidate = { pick: [...pick], total: totalWeight, kadar: kTemp };
+                    }
+                }
+            }
+        }
+
+        let progressPct = (loopCounter / totalLoops) * 100;
+        $('main-progress-bar').style.width = `${progressPct}%`;
+
+        if (loopCounter < totalLoops) {
+            setTimeout(processBatch, 8);
+        } else {
+            finalizeOptimization(bestCandidate, df, numSplit);
+        }
+    }
+
+    processBatch();
+}
+
+function finalizeOptimization(bestCandidate, df, numSplit) {
+    if (!bestCandidate) {
+        isCalculating = false;
+        $('loading-overlay').style.display = 'none';
+        updateStatusLabel("Kombinasi Tidak Ditemukan 🥺");
+        showToast("Tidak ada kombinasi yang memenuhi target berat/kadar.");
+        return;
+    }
+
+    chosenItems = bestCandidate.pick;
+    let chosenSet = new Set(chosenItems);
+    leftoverItems = df.filter(x => !chosenSet.has(x));
+
+    function evalGroupBalance(groups) {
+        let metrics = groups.map(g => [
+            g.reduce((sum, x) => sum + x['Berat 22k'], 0),
+            weightedGrade(g)
+        ]);
+
+        let weights = metrics.map(m => m[0]);
+        let grades = metrics.map(m => m[1]);
+
+        let wDiff = Math.max(...weights) - Math.min(...weights);
+        let gDiff = Math.max(...grades) - Math.min(...grades);
+
+        let score = (wDiff > 300) ? (wDiff * 5000) : wDiff;
+        score += (gDiff * 500000);
+        return score;
+    }
+
+    let globalBestGroups = null;
+    let globalBestScore = Infinity;
+
+    for (let t = 0; t < 400; t++) {
+        let shuffled = [...chosenItems].sort(() => Math.random() - 0.5);
+        let groups = Array.from({ length: numSplit }, () => []);
+
+        shuffled.forEach(item => {
+            let sums = groups.map(g => g.reduce((sum, x) => sum + x['Berat 22k'], 0));
+            let minIdx = sums.indexOf(Math.min(...sums));
+            groups[minIdx].push(item);
+        });
+
+        let currentScore = evalGroupBalance(groups);
+        let improved = true;
+
+        while (improved) {
+            improved = false;
+            for (let a = 0; a < numSplit; a++) {
+                for (let b = a + 1; b < numSplit; b++) {
+                    for (let ia = 0; ia < groups[a].length; ia++) {
+                        for (let ib = 0; ib < groups[b].length; ib++) {
+                            let temp = groups[a][ia];
+                            groups[a][ia] = groups[b][ib];
+                            groups[b][ib] = temp;
+
+                            let sc = evalGroupBalance(groups);
+                            if (sc < currentScore) {
+                                currentScore = sc;
+                                improved = true;
+                            } else {
+                                temp = groups[a][ia];
+                                groups[a][ia] = groups[b][ib];
+                                groups[b][ib] = temp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (currentScore < globalBestScore) {
+            globalBestScore = currentScore;
+            globalBestGroups = groups.map(g => [...g]);
+        }
+    }
+
+    resultGroups = globalBestGroups;
+    renderCalculationResults();
+
+    isCalculating = false;
+    $('loading-overlay').style.display = 'none';
+    $('main-progress-bar').style.width = '100%';
+    updateStatusLabel(`Perhitungan Selesai Bozz 😎 — ${chosenItems.length} Data Dipilih`);
+    showToast("Hasil perhitungan berhasil diperbarui!");
+}
+
+function renderCalculationResults() {
+    const tbody = $('preview-tbody');
+    tbody.innerHTML = '';
+
+    let baseName = $('target-process').value.trim() || 'C';
+    let grandWeightTotal = 0;
+    let allCalculatedItems = [];
+
+    // Reset view cards
+    ['1', '2', '3'].forEach(i => {
+        $(`weight-c${i}`).textContent = '0.00';
+        $(`grade-c${i}`).textContent = '0.00%';
+        $(`count-c${i}`).textContent = '0 data';
+    });
+
+    resultGroups.forEach((group, idx) => {
+        let processName = `${baseName.toUpperCase()}${idx + 1}`;
+
+        let groupWeight = group.reduce((s, r) => s + r['Berat 22k'], 0);
+        let groupGrade = weightedGrade(group);
+
+        $(`weight-c${idx + 1}`).textContent = formatNumber(groupWeight);
+        $(`grade-c${idx + 1}`).textContent = formatNumber(groupGrade) + '%';
+        $(`count-c${idx + 1}`).textContent = `${group.length} data`;
+
+        // Render Group Section Row in Table
+        const groupHeaderTr = document.createElement('tr');
+        groupHeaderTr.className = 'group-row';
+        groupHeaderTr.innerHTML = `<td colspan="5">=== PROSES ${processName} (${group.length} DATA) ===</td>`;
+        tbody.appendChild(groupHeaderTr);
+
+        let sortedGroup = [...group].sort((a,b) => String(a['No Dokumen']).localeCompare(String(b['No Dokumen'])));
+        sortedGroup.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:var(--accent-green); font-weight:700;">OK</td>
+                <td>${row['No Dokumen']}</td>
+                <td>${formatNumber(row['Berat 22k'])}</td>
+                <td>${formatNumber(row['Kadar'])}%</td>
+                <td>${formatNumber(row['Berat AG'])}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        grandWeightTotal += groupWeight;
+        allCalculatedItems = allCalculatedItems.concat(group);
+    });
+
+    let grandGradeAvg = weightedGrade(allCalculatedItems);
+    $('grand-weight').textContent = formatNumber(grandWeightTotal);
+    $('grand-grade').textContent = formatNumber(grandGradeAvg) + '%';
+}
+
+async function exportExcelReport() {
+    if (!resultGroups || !resultGroups.length || !resultGroups[0].length) {
+        showToast("Hitung data terlebih dahulu sebelum melakukan export!");
+        return;
+    }
+
+    let baseName = $('target-process').value.trim() || 'C';
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet1 = workbook.addWorksheet("Hasil Hitung");
+    const sheet2 = workbook.addWorksheet("Sisa Data");
+
+    // SHEET 1 (HASIL HITUNG)
+    sheet1.addRow([]);
+    const headers1 = ["Proses", "No Dokumen", "Berat Awal", "Berat 24K", "% Kadar", "% AG", "Berat AG", "Berat Timbang"];
+    sheet1.addRow(["", ...headers1]);
+
+    sheet1.getColumn(1).width = 3;  
+    sheet1.getColumn(2).width = 16; 
+    sheet1.getColumn(3).width = 16; 
+    sheet1.getColumn(4).width = 14; 
+    sheet1.getColumn(5).width = 14; 
+    sheet1.getColumn(6).width = 12; 
+    sheet1.getColumn(7).width = 12;  
+    sheet1.getColumn(8).width = 14; 
+    sheet1.getColumn(9).width = 16; 
+
+    let subtotalRows = [];
+    let processTitleRows = [];
+    let grandB = 0, grand24 = 0, grandAG = 0;
+
+    resultGroups.forEach((group, idx) => {
+        let processName = `${baseName.toUpperCase()}${idx + 1}`;
+        let sumB = 0, sum24 = 0, sumAG = 0;
+        let sortedGroup = [...group].sort((a,b) => String(a['No Dokumen']).localeCompare(String(b['No Dokumen'])));
+
+        sortedGroup.forEach((r, index) => {
+            let b = parseFloat(r['Berat 22k']) || 0;
+            let k = parseFloat(r['Kadar']) || 0;
+            let ag = parseFloat(r['Berat AG']) || 0;
+            let b24 = b * k / 100;
+
+            sumB += b;
+            sum24 += b24;
+            sumAG += ag;
+
+            let textProses = (index === 0) ? processName : "";
+
+            sheet1.addRow([
+                "",
+                textProses,
+                r['No Dokumen'],
+                roundToTwo(b),
+                roundToTwo(b24),
+                roundToTwo(k),
+                roundToTwo(b > 0 ? (ag / b * 100) : 0),
+                roundToTwo(ag),
+                ""
+            ]);
+
+            if (index === 0) processTitleRows.push(sheet1.rowCount);
+        });
+
+        let avgK = sumB > 0 ? (sum24 / sumB * 100) : 0;
+        let avgAGPct = sumB > 0 ? (sumAG / sumB * 100) : 0;
+
+        sheet1.addRow(["", "", " ", roundToTwo(sumB), roundToTwo(sum24), roundToTwo(avgK), roundToTwo(avgAGPct), roundToTwo(sumAG), ""]);
+        subtotalRows.push(sheet1.rowCount);
+        sheet1.addRow(["", "", "", "", "", "", "", "", ""]); 
+
+        grandB += sumB;
+        grand24 += sum24;
+        grandAG += sumAG;
+    });
+
+    let grandK = grandB > 0 ? (grand24 / grandB * 100) : 0;
+    let grandAGPct = grandB > 0 ? (grandAG / grandB * 100) : 0;
+    sheet1.addRow(["", "TOTAL", "", roundToTwo(grandB), roundToTwo(grand24), roundToTwo(grandK), roundToTwo(grandAGPct), roundToTwo(grandAG), ""]);
+    let grandTotalIdx = sheet1.rowCount;
+
+    // Sheet 1 Styling & Borders
+    const minRow1 = 2;
+    const maxRow1 = sheet1.rowCount;
+    const minCol1 = 2;
+    const maxCol1 = 9;
+
+    for (let r = minRow1; r <= maxRow1; r++) {
+        for (let c = minCol1; c <= maxCol1; c++) {
+            const cell = sheet1.getCell(r, c);
+            cell.border = {
+                left: { style: (c === minCol1) ? 'thick' : 'thin' },
+                right: { style: (c === maxCol1) ? 'thick' : 'thin' },
+                top: { style: (r === minRow1) ? 'thick' : 'thin' },
+                bottom: { style: (r === maxRow1) ? 'thick' : 'thin' }
+            };
+
+            if (r > minRow1 && c >= 4 && c <= 9) {
+                if (cell.value !== "" && !isNaN(cell.value) && cell.value !== null) {
+                    cell.number_format = '#,##0.00';
+                }
+            }
+
+            cell.font = { name: 'Arial', size: 12 };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            if (r > minRow1 && c === 3 && cell.value !== "") {
+                cell.alignment = { horizontal: 'left', indent: 1 };
+            }
+        }
+    }
+
+    processTitleRows.forEach(rIdx => {
+        sheet1.getCell(rIdx, 2).font = { name: 'Arial', bold: true, size: 12 };
+    });
+
+    // Yellow Header Fill for Sheet 1
+    for (let c = minCol1; c <= maxCol1; c++) {
+        const cell = sheet1.getCell(minRow1, c);
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD966' } };
+        cell.font = { name: 'Arial', bold: true, size: 12 };
+    }
+
+    subtotalRows.forEach(rIdx => {
+        for (let c = minCol1; c <= maxCol1; c++) {
+            const cell = sheet1.getCell(rIdx, c);
+            cell.border = {
+                left: cell.border.left,
+                right: cell.border.right,
+                top: { style: 'double' },
+                bottom: { style: 'double' }
+            };
+            cell.font = { name: 'Arial', bold: true, size: 12 };
+        }
+    });
+
+    for (let c = minCol1; c <= maxCol1; c++) {
+        const cell = sheet1.getCell(grandTotalIdx, c);
+        cell.font = { name: 'Arial', bold: true, size: 12 };
+    }
+
+    // SHEET 2 (SISA DATA)
+    sheet2.addRow([]);
+    const headers2 = ["No Dokumen", "Berat Awal", "Berat 24K", "% Kadar", "% AG", "Berat AG"];
+    sheet2.addRow(["", ...headers2]);
+
+    sheet2.getColumn(1).width = 3;  
+    sheet2.getColumn(2).width = 16; 
+    sheet2.getColumn(3).width = 14; 
+    sheet2.getColumn(4).width = 14; 
+    sheet2.getColumn(5).width = 12; 
+    sheet2.getColumn(6).width = 12;  
+    sheet2.getColumn(7).width = 14; 
+
+    let leftB = 0, left24 = 0, leftAG = 0;
+    let sortedLeftovers = [...leftoverItems].sort((a,b) => String(a['No Dokumen']).localeCompare(String(b['No Dokumen'])));
+
+    sortedLeftovers.forEach(r => {
+        let b = parseFloat(r['Berat 22k']) || 0;
+        let k = parseFloat(r['Kadar']) || 0;
+        let ag = parseFloat(r['Berat AG']) || 0;
+        let b24 = b * k / 100;
+        let agPct = b > 0 ? (ag / b * 100) : 0;
+
+        leftB += b;
+        left24 += b24;
+        leftAG += ag;
+
+        sheet2.addRow(["", r['No Dokumen'], roundToTwo(b), roundToTwo(b24), roundToTwo(k), roundToTwo(agPct), roundToTwo(ag)]);
+    });
+
+    let leftKAvg = leftB > 0 ? (left24 / leftB * 100) : 0;
+    let leftAGAvgPct = leftB > 0 ? (leftAG / leftB * 100) : 0;
+    sheet2.addRow(["", "TOTAL SISA", roundToTwo(leftB), roundToTwo(left24), roundToTwo(leftKAvg), roundToTwo(leftAGAvgPct), roundToTwo(leftAG)]);
+    let totalSisaIdx = sheet2.rowCount;
+
+    const minRow2 = 2;
+    const maxRow2 = sheet2.rowCount;
+    const minCol2 = 2;
+    const maxCol2 = 7;
+
+    for (let r = minRow2; r <= maxRow2; r++) {
+        for (let c = minCol2; c <= maxCol2; c++) {
+            const cell = sheet2.getCell(r, c);
+            cell.border = {
+                left: { style: (c === minCol2) ? 'thick' : 'thin' },
+                right: { style: (c === maxCol2) ? 'thick' : 'thin' },
+                top: { style: (r === minRow2) ? 'thick' : 'thin' },
+                bottom: { style: (r === maxRow2) ? 'thick' : 'thin' }
+            };
+
+            if (r > minRow2 && c >= 3 && c <= 7) {
+                if (cell.value !== "" && !isNaN(cell.value) && cell.value !== null) {
+                    cell.number_format = '#,##0.00';
+                }
+            }
+
+            if (r > minRow2 && c === 2 && cell.value !== "") {
+                cell.alignment = { horizontal: 'left', indent: 1 };
+            }
+
+            cell.font = { name: 'Arial', size: 11 };
+        }
+    }
+
+    for (let c = minCol2; c <= maxCol2; c++) {
+        const cell = sheet2.getCell(minRow2, c);
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FCE4D6' } };
+        cell.font = { name: 'Arial', bold: true, size: 11 };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    }
+
+    for (let c = minCol2; c <= maxCol2; c++) {
+        const cell = sheet2.getCell(totalSisaIdx, c);
+        cell.font = { name: 'Arial', bold: true, size: 11 };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    }
+
+    // Export file 
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), "Hasil Hitung - .xlsx");
+    showToast("File Excel berhasil di-download! 📥");
+}
+
+window.onload = function() {
+    updateLiveProcessTitles();
+};
+</script>
+</body>
+</html>
